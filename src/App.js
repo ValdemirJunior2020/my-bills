@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 function App() {
   // DEFAULT NUMBERS BASED ON YOUR SITUATION
-  const [monthlyIncome, setMonthlyIncome] = useState(3624.91); // from $1,840.63 every 2 weeks
+  const [monthlyIncome, setMonthlyIncome] = useState(3988); // from $1,840.63 every 2 weeks
   const [rvPayment, setRvPayment] = useState(1038);
   const [rvParking, setRvParking] = useState(1150);
   const [carPayment, setCarPayment] = useState(236);
