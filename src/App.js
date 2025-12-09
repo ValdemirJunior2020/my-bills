@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 
 function App() {
-  // DEFAULT NUMBERS BASED ON YOUR SITUATION
-  const [monthlyIncome, setMonthlyIncome] = useState(3988); // from $1,840.63 every 2 weeks
+  // DEFAULT NUMBERS BASED ON YOUR CURRENT SITUATION
+  // Current available cash approximated as "monthly income"
+  const [monthlyIncome, setMonthlyIncome] = useState(3624.91); // after parking rent
+
+  // Regular bills
   const [rvPayment, setRvPayment] = useState(1038);
   const [rvParking, setRvParking] = useState(1150);
   const [carPayment, setCarPayment] = useState(236);
@@ -11,23 +14,28 @@ function App() {
   const [phoneBill, setPhoneBill] = useState(40);
   const [food, setFood] = useState(400);
 
+  // NEW: Credit-card minimum payment (starts January)
+  const [ccMinPayment, setCcMinPayment] = useState(231); // one card minimum
+
   // INVESTMENT SETTINGS
   const [k401Percent, setK401Percent] = useState(4); // % of income
   const [rothMonthly, setRothMonthly] = useState(50); // your Roth VOO
   const [sonsVoo, setSonsVoo] = useState(15); // son's VOO
 
   // CALCULATIONS
-  const totalBills =
+  const totalBillsAndDebt =
     rvPayment +
     rvParking +
     carPayment +
     carInsurance +
     childSupport +
     phoneBill +
-    food;
+    food +
+    ccMinPayment;
 
-  const afterBills = monthlyIncome - totalBills;
+  const afterBills = monthlyIncome - totalBillsAndDebt;
 
+  // 401(k) contribution based on income
   const k401Contribution = (monthlyIncome * k401Percent) / 100;
 
   // employer matches up to 4% of salary
@@ -44,18 +52,19 @@ function App() {
 
   return (
     <div className="container py-4">
-      <h1 className="mb-3 text-center">My Budget & Investment Planner</h1>
+      <h1 className="mb-3 text-center">Junior&apos;s Budget & Investment Planner</h1>
       <p className="text-center text-muted">
-        Income, bills, 401(k) match, my Roth VOO, and my son&apos;s VOO.
+        Income, bills, credit-card minimums, 401(k) match, my Roth VOO, and my
+        son&apos;s VOO.
       </p>
 
       <div className="row mt-4">
-        {/* LEFT COLUMN: INCOME & BILLS */}
+        {/* LEFT COLUMN: INCOME & BILLS + DEBT */}
         <div className="col-lg-6 mb-4">
           {/* Income card */}
           <div className="card shadow-sm mb-3">
             <div className="card-header bg-primary text-white">
-              Monthly Income
+              Monthly Income / Available Cash
             </div>
             <div className="card-body">
               <div className="mb-3">
@@ -70,16 +79,17 @@ function App() {
                   min="0"
                 />
                 <div className="form-text">
-                  Based on $1,840.63 every 2 weeks ≈ $3,988/month.
+                  This can be your net paycheck for the month or your current
+                  available cash you want to plan with.
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bills card */}
+          {/* Bills + Debt card */}
           <div className="card shadow-sm">
             <div className="card-header bg-secondary text-white">
-              Monthly Bills
+              Monthly Bills &amp; Debt Payments
             </div>
             <div className="card-body">
               <BillInput
@@ -115,12 +125,25 @@ function App() {
               <BillInput label="Food" value={food} onChange={setFood} />
 
               <hr />
+
+              <h6 className="mt-2">Debt Payments</h6>
+              <BillInput
+                label="Credit Card Minimum Payment"
+                value={ccMinPayment}
+                onChange={setCcMinPayment}
+              />
+              <div className="form-text mb-2">
+                This is the minimum you must pay in January ($231 for one card
+                right now).
+              </div>
+
+              <hr />
               <div className="d-flex justify-content-between">
-                <strong>Total Bills:</strong>
-                <strong>${totalBills.toFixed(2)}</strong>
+                <strong>Total Bills + Debt:</strong>
+                <strong>${totalBillsAndDebt.toFixed(2)}</strong>
               </div>
               <div className="d-flex justify-content-between mt-1">
-                <span>Left after bills:</span>
+                <span>Left after bills + debt:</span>
                 <span
                   className={
                     "fw-bold " +
@@ -132,7 +155,8 @@ function App() {
               </div>
               {isNegativeAfterBills && (
                 <p className="text-danger mt-2">
-                  ⚠️ Your bills are higher than your income.
+                  ⚠️ Your bills + debt are higher than your income/available
+                  cash.
                 </p>
               )}
             </div>
@@ -199,11 +223,11 @@ function App() {
           {/* Summary */}
           <div className="card shadow-sm">
             <div className="card-header bg-dark text-white">
-              Summary & Cash Flow
+              Summary &amp; Cash Flow
             </div>
             <div className="card-body">
               <SummaryRow
-                label="Income after bills"
+                label="Income after bills + debt"
                 value={afterBills}
                 highlight
                 danger={afterBills < 0}
@@ -218,7 +242,7 @@ function App() {
                 positive
               />
               <SummaryRow
-                label="Left after bills + 401(k)"
+                label="Left after bills, debt & 401(k)"
                 value={after401k}
                 highlight
                 danger={after401k < 0}
@@ -243,6 +267,8 @@ function App() {
               {isNegativeAfterInvesting && (
                 <p className="text-danger mt-2">
                   ⚠️ You&apos;re investing more than you can afford right now.
+                  Consider lowering 401(k) or VOO amounts until this is
+                  positive.
                 </p>
               )}
               {!isNegativeAfterInvesting && afterInvesting < 200 && (
@@ -253,8 +279,8 @@ function App() {
               )}
               {!isNegativeAfterInvesting && afterInvesting >= 200 && (
                 <p className="text-success mt-2">
-                  ✅ Balanced! You&apos;re investing and still keeping a safety
-                  buffer.
+                  ✅ Balanced! You&apos;re paying bills, hitting debt minimums,
+                  investing, and still keeping a safety buffer.
                 </p>
               )}
             </div>
@@ -263,8 +289,8 @@ function App() {
       </div>
 
       <div className="text-center mt-4 text-muted small">
-        Adjust any input to explore different scenarios with your 401(k), Roth
-        IRA, and your son&apos;s VOO account.
+        Adjust any input to explore different scenarios with your 401(k),
+        credit-card payoff, Roth IRA, and your son&apos;s VOO account.
       </div>
     </div>
   );
